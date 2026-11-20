@@ -29,6 +29,11 @@ dev = [
 [project.scripts]
 hookproof = "hookproof.cli:main"
 
+[project.urls]
+Homepage = "https://github.com/Nikhil-133/HookProof"
+Repository = "https://github.com/Nikhil-133/HookProof"
+Issues = "https://github.com/Nikhil-133/HookProof/issues"
+
 [tool.setuptools]
 package-dir = { "" = "src" }
 

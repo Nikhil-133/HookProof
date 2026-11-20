@@ -1,6 +1,6 @@
 # HookProof
 
-[![CI: GitHub Actions](https://img.shields.io/badge/CI-GitHub%20Actions-2ea44f.svg)](.github/workflows/ci.yml)
+[![CI](https://github.com/Nikhil-133/HookProof/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Nikhil-133/HookProof/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 
