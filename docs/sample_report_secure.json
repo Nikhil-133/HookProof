@@ -1,0 +1,758 @@
+{
+  "schema_version": 1,
+  "tool": "HookProof",
+  "tool_version": "0.1.0",
+  "generated_at": "2026-11-20T06:42:53+00:00",
+  "run_id": "ec60deb34d",
+  "target": {
+    "url": "http://127.0.0.1:8011/webhooks/payment",
+    "scheme": "http",
+    "host": "127.0.0.1",
+    "port": 8011
+  },
+  "suite": "core",
+  "detected_mode": "secure",
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "errors": 0,
+    "confirmed_lab_failures": 0,
+    "inconclusive_or_errors": 0,
+    "highest_severity": null,
+    "failed_by_severity": {},
+    "outcome": "PASS",
+    "request_count": 21,
+    "duration_seconds": 0.181
+  },
+  "notes": [
+    "Target reports itself as secure lab mode; all core tests are expected to pass."
+  ],
+  "limitations": [
+    "EffectProof requires the target to expose a restricted test-state interface (the HookProof lab provides one). Internal effects of an arbitrary API cannot be observed without suitable instrumentation.",
+    "HookProof only scans explicitly allowed hosts; the default allow-list is loopback.",
+    "The MVP includes a single event type (payment.succeeded) and a single 'core' suite.",
+    "Timing/race findings are probabilistic: a clean concurrent test does not prove the absence of a race under all conditions."
+  ],
+  "results": [
+    {
+      "id": "valid_signature",
+      "title": "Valid signed event is processed",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "MEDIUM",
+      "description": "A correctly signed, fresh payment event must be accepted and must create exactly one payment business operation.",
+      "expected": "exactly one payment of 1000; order status 'paid'",
+      "observed": "payment_count=1, amount_total=1000, expected_total=1000, status=paid",
+      "remediation": "Investigate the webhook handler, signature verification and payload validation. A valid event should result in one processed operation.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "valid-event",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "processed",
+              "duplicate": false
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-valid_signature-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": true,
+          "order_id": "ord-valid_signature-ec60deb34d",
+          "status": "paid",
+          "amount_total": 1000,
+          "payment_count": 1,
+          "payment_amounts": [
+            1000
+          ],
+          "processed_event_ids": [
+            "evt-valid_signature-ec60deb34d"
+          ]
+        }
+      }
+    },
+    {
+      "id": "missing_signature",
+      "title": "Unsigned event does not change protected state",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "HIGH",
+      "description": "An event without any signature header must be rejected and must not create or modify protected business records.",
+      "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Require and verify a signature header on every webhook request before processing. Reject unsigned requests with 401.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "missing_signature",
+            "status_code": 401,
+            "response_body": {
+              "detail": "missing signature or timestamp header"
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-missing_signature-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-missing_signature-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    },
+    {
+      "id": "invalid_signature",
+      "title": "Forged signature is rejected without side effects",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "HIGH",
+      "description": "A request signed with the wrong secret must be rejected and must not trigger processing.",
+      "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Verify signatures with a constant-time comparison against the expected HMAC and reject mismatches with 401 before any side effect.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "invalid_signature",
+            "status_code": 401,
+            "response_body": {
+              "detail": "invalid signature"
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-invalid_signature-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-invalid_signature-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    },
+    {
+      "id": "payload_tampering",
+      "title": "Tampered payload is rejected without side effects",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "HIGH",
+      "description": "A signed body whose content was modified (without recomputing a valid signature) must not be processed.",
+      "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Sign the raw request body and verify it before parsing. Never trust fields that were not covered by the signature.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "payload_tampering",
+            "status_code": 401,
+            "response_body": {
+              "detail": "invalid signature"
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-payload_tampering-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-payload_tampering-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    },
+    {
+      "id": "unsupported_event_type",
+      "title": "Unsupported event type does not move money",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "MEDIUM",
+      "description": "A correctly signed event whose type is not supported (for example a refund event) must not trigger a payment fulfilment.",
+      "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Accept only explicitly supported event types and reject or ignore unknown types before any business logic runs.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "unsupported_event_type",
+            "status_code": 422,
+            "response_body": {
+              "detail": [
+                "unsupported event type: 'payment.refunded'"
+              ]
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-unsupported_event_type-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-unsupported_event_type-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    },
+    {
+      "id": "invalid_amount",
+      "title": "Negative amount is rejected without side effects",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "HIGH",
+      "description": "A signed event with an invalid (negative) amount must be rejected and must not create a payment or alter protected state.",
+      "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Validate amount boundaries (positive, within expected limits) before processing, and reject invalid payloads with 422.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "invalid_amount",
+            "status_code": 422,
+            "response_body": {
+              "detail": [
+                "field 'amount' must be positive"
+              ]
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-invalid_amount-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-invalid_amount-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    },
+    {
+      "id": "duplicate_event",
+      "title": "Duplicate delivery creates only one business operation",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "HIGH",
+      "description": "Delivering the same valid event twice must produce exactly one protected business operation (persistent idempotency).",
+      "expected": "exactly one payment of 1000 after two identical deliveries",
+      "observed": "payment_count=1, amount_total=1000, expected_total=1000, status=paid",
+      "remediation": "Persist event IDs and make the business operation idempotent using a unique constraint plus a transaction. Return a safe success for already-processed events instead of repeating the operation.",
+      "notes": [
+        "the duplicate received a success response, which is acceptable because no operation was repeated"
+      ],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "first-delivery",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "processed",
+              "duplicate": false
+            }
+          },
+          {
+            "label": "second-delivery",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-duplicate_event-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": true,
+          "order_id": "ord-duplicate_event-ec60deb34d",
+          "status": "paid",
+          "amount_total": 1000,
+          "payment_count": 1,
+          "payment_amounts": [
+            1000
+          ],
+          "processed_event_ids": [
+            "evt-duplicate_event-ec60deb34d"
+          ]
+        }
+      }
+    },
+    {
+      "id": "concurrent_duplicate",
+      "title": "Concurrent duplicate deliveries cannot bypass idempotency",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "CRITICAL",
+      "description": "Simultaneous copies of the same valid event must still result in exactly one protected business operation.",
+      "expected": "exactly one payment of 1000 after 8 concurrent deliveries",
+      "observed": "payment_count=1, amount_total=1000, expected_total=1000, status=paid",
+      "remediation": "Enforce idempotency at the database level (unique event ID constraint) inside an immediate/atomic transaction so that concurrent deliveries cannot each create a payment.",
+      "notes": [
+        "concurrent response codes: [200, 200, 200, 200, 200, 200, 200, 200]"
+      ],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "concurrent-0",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "processed",
+              "duplicate": false
+            }
+          },
+          {
+            "label": "concurrent-1",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          },
+          {
+            "label": "concurrent-2",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          },
+          {
+            "label": "concurrent-3",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          },
+          {
+            "label": "concurrent-4",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          },
+          {
+            "label": "concurrent-5",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          },
+          {
+            "label": "concurrent-6",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          },
+          {
+            "label": "concurrent-7",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-concurrent_duplicate-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": true,
+          "order_id": "ord-concurrent_duplicate-ec60deb34d",
+          "status": "paid",
+          "amount_total": 1000,
+          "payment_count": 1,
+          "payment_amounts": [
+            1000
+          ],
+          "processed_event_ids": [
+            "evt-concurrent_duplicate-ec60deb34d"
+          ]
+        }
+      }
+    },
+    {
+      "id": "event_id_reuse",
+      "title": "Event ID cannot be reused for another order",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "HIGH",
+      "description": "Reusing an already processed event ID with a different order must not create a second protected business operation.",
+      "expected": "original order charged once; reused event ID creates no payment for the second order",
+      "observed": "primary_payment_count=1, secondary_payment_count=0, secondary_amount_total=0",
+      "remediation": "Make the idempotency ledger global to the event ID (unique constraint), not scoped per order, and reject reused IDs atomically.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "original-order",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "processed",
+              "duplicate": false
+            }
+          },
+          {
+            "label": "reused-event-id",
+            "status_code": 200,
+            "response_body": {
+              "mode": "secure",
+              "status": "duplicate",
+              "duplicate": true
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-event_id_reuse-secondary-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "primary": {
+            "found": true,
+            "order_id": "ord-event_id_reuse-primary-ec60deb34d",
+            "status": "paid",
+            "amount_total": 1000,
+            "payment_count": 1,
+            "payment_amounts": [
+              1000
+            ],
+            "processed_event_ids": [
+              "evt-event_id_reuse-ec60deb34d"
+            ]
+          },
+          "secondary": {
+            "found": false,
+            "order_id": "ord-event_id_reuse-secondary-ec60deb34d",
+            "status": null,
+            "amount_total": 0,
+            "payment_count": 0,
+            "payment_amounts": [],
+            "processed_event_ids": []
+          }
+        }
+      }
+    },
+    {
+      "id": "stale_timestamp",
+      "title": "Stale signed timestamp is rejected",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "MEDIUM",
+      "description": "A correctly signed event whose authenticated timestamp is outside the freshness window must be rejected and cause no side effects.",
+      "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Reject events whose authenticated timestamp is outside the accepted freshness window (for example +/- 300 seconds) and record a replay guard for accepted event IDs.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "stale_timestamp",
+            "status_code": 401,
+            "response_body": {
+              "detail": "stale timestamp"
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-stale_timestamp-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-stale_timestamp-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    },
+    {
+      "id": "malformed_payload",
+      "title": "Malformed payload causes no unintended state change",
+      "status": "PASS",
+      "severity": "INFO",
+      "severity_if_failed": "LOW",
+      "description": "Invalid JSON and structurally invalid events (including with a valid signature) must be handled safely without side effects.",
+      "expected": "no payment recorded for malformed payloads",
+      "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+      "remediation": "Validate JSON parsing and every required field before processing, and respond with 400/422 without touching business state.",
+      "notes": [],
+      "evidence": {
+        "exchanges": [
+          {
+            "label": "invalid-json",
+            "status_code": 400,
+            "response_body": {
+              "detail": "invalid JSON payload"
+            }
+          },
+          {
+            "label": "missing-required-fields",
+            "status_code": 422,
+            "response_body": {
+              "detail": [
+                "missing field: type",
+                "missing field: amount",
+                "missing field: currency",
+                "missing field: timestamp"
+              ]
+            }
+          }
+        ],
+        "before_state": {
+          "found": false,
+          "order_id": "ord-malformed_payload-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        },
+        "after_state": {
+          "found": false,
+          "order_id": "ord-malformed_payload-ec60deb34d",
+          "status": null,
+          "amount_total": 0,
+          "payment_count": 0,
+          "payment_amounts": [],
+          "processed_event_ids": []
+        }
+      }
+    }
+  ],
+  "html_ready": {
+    "title": "HookProof report - core suite",
+    "subtitle": "Target http://127.0.0.1:8011/webhooks/payment (detected mode: secure)",
+    "summary_cards": [
+      {
+        "label": "Outcome",
+        "value": "PASS"
+      },
+      {
+        "label": "Total",
+        "value": 11
+      },
+      {
+        "label": "Passed",
+        "value": 11
+      },
+      {
+        "label": "Failed",
+        "value": 0
+      },
+      {
+        "label": "Errors",
+        "value": 0
+      }
+    ],
+    "sections": [
+      {
+        "heading": "Findings",
+        "rows": [
+          {
+            "id": "valid_signature",
+            "title": "Valid signed event is processed",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "exactly one payment of 1000; order status 'paid'",
+            "observed": "payment_count=1, amount_total=1000, expected_total=1000, status=paid",
+            "remediation": "Investigate the webhook handler, signature verification and payload validation. A valid event should result in one processed operation."
+          },
+          {
+            "id": "missing_signature",
+            "title": "Unsigned event does not change protected state",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Require and verify a signature header on every webhook request before processing. Reject unsigned requests with 401."
+          },
+          {
+            "id": "invalid_signature",
+            "title": "Forged signature is rejected without side effects",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Verify signatures with a constant-time comparison against the expected HMAC and reject mismatches with 401 before any side effect."
+          },
+          {
+            "id": "payload_tampering",
+            "title": "Tampered payload is rejected without side effects",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Sign the raw request body and verify it before parsing. Never trust fields that were not covered by the signature."
+          },
+          {
+            "id": "unsupported_event_type",
+            "title": "Unsupported event type does not move money",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Accept only explicitly supported event types and reject or ignore unknown types before any business logic runs."
+          },
+          {
+            "id": "invalid_amount",
+            "title": "Negative amount is rejected without side effects",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Validate amount boundaries (positive, within expected limits) before processing, and reject invalid payloads with 422."
+          },
+          {
+            "id": "duplicate_event",
+            "title": "Duplicate delivery creates only one business operation",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "exactly one payment of 1000 after two identical deliveries",
+            "observed": "payment_count=1, amount_total=1000, expected_total=1000, status=paid",
+            "remediation": "Persist event IDs and make the business operation idempotent using a unique constraint plus a transaction. Return a safe success for already-processed events instead of repeating the operation."
+          },
+          {
+            "id": "concurrent_duplicate",
+            "title": "Concurrent duplicate deliveries cannot bypass idempotency",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "exactly one payment of 1000 after 8 concurrent deliveries",
+            "observed": "payment_count=1, amount_total=1000, expected_total=1000, status=paid",
+            "remediation": "Enforce idempotency at the database level (unique event ID constraint) inside an immediate/atomic transaction so that concurrent deliveries cannot each create a payment."
+          },
+          {
+            "id": "event_id_reuse",
+            "title": "Event ID cannot be reused for another order",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "original order charged once; reused event ID creates no payment for the second order",
+            "observed": "primary_payment_count=1, secondary_payment_count=0, secondary_amount_total=0",
+            "remediation": "Make the idempotency ledger global to the event ID (unique constraint), not scoped per order, and reject reused IDs atomically."
+          },
+          {
+            "id": "stale_timestamp",
+            "title": "Stale signed timestamp is rejected",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded and amount_total remains 0 (no protected side effect)",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Reject events whose authenticated timestamp is outside the accepted freshness window (for example +/- 300 seconds) and record a replay guard for accepted event IDs."
+          },
+          {
+            "id": "malformed_payload",
+            "title": "Malformed payload causes no unintended state change",
+            "status": "PASS",
+            "severity": "INFO",
+            "expected": "no payment recorded for malformed payloads",
+            "observed": "payment_count=0, amount_total=0, order_created=False, status=None",
+            "remediation": "Validate JSON parsing and every required field before processing, and respond with 400/422 without touching business state."
+          }
+        ]
+      }
+    ]
+  }
+}

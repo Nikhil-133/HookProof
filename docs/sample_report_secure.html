@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="HookProof 0.1.0">
+<title>HookProof report - ec60deb34d</title>
+<style>
+  :root {
+    --bg: #0a0f1e; --panel: #111a2e; --panel-2: #0d1526; --line: #233050;
+    --text: #e9eefc; --muted: #93a2bd; --green: #2ecc71; --red: #ff4d5e;
+    --yellow: #f5c542; --cyan: #45d6d6; --blue: #5b8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: radial-gradient(1200px 600px at 20% -10%, #15234a 0%, var(--bg) 55%);
+    color: var(--text); font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 36px 22px 60px; }
+  .brand { font-size: 34px; font-weight: 800; letter-spacing: 1px; }
+  .brand span { color: var(--cyan); }
+  .tag { color: var(--muted); margin-top: 2px; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+           gap: 10px 22px; margin: 26px 0; }
+  .meta div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+               padding: 10px 14px; overflow-wrap: anywhere; }
+  .meta dt { color: var(--muted); font-size: 11px; text-transform: uppercase;
+              letter-spacing: .12em; }
+  .meta dd { margin: 2px 0 0; font-size: 14px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px; margin: 22px 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+           padding: 14px; text-align: center; }
+  .card .num { font-size: 28px; font-weight: 800; }
+  .card .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase;
+                letter-spacing: .1em; }
+  .outcome { border-radius: 12px; padding: 16px 20px; font-weight: 700; margin: 18px 0 26px; }
+  .outcome.pass { background: rgba(46,204,113,.12); border: 1px solid var(--green); color: var(--green); }
+  .outcome.fail { background: rgba(255,77,94,.12); border: 1px solid var(--red); color: var(--red); }
+  .outcome.error { background: rgba(245,197,66,.12); border: 1px solid var(--yellow); color: var(--yellow); }
+  h2 { margin: 30px 0 14px; font-size: 20px; }
+  .finding { background: var(--panel); border: 1px solid var(--line); border-left-width: 5px;
+              border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .finding.pass { border-left-color: var(--green); }
+  .finding.fail { border-left-color: var(--red); }
+  .finding.error { border-left-color: var(--yellow); }
+  .finding-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .finding-title { flex: 1 1 320px; }
+  .finding-title h3 { margin: 0; font-size: 16px; }
+  .finding-title code { color: var(--muted); font-size: 12px; }
+  .badge { font-size: 11px; font-weight: 800; letter-spacing: .1em; padding: 4px 9px;
+            border-radius: 999px; }
+  .badge.pass { background: var(--green); color: #04140a; }
+  .badge.fail { background: var(--red); color: #1a0407; }
+  .badge.error { background: var(--yellow); color: #1a1503; }
+  .severity { font-size: 11px; font-weight: 800; letter-spacing: .08em;
+               border: 1px solid currentColor; border-radius: 999px; padding: 3px 9px; }
+  .severity.critical { color: #ff6b7a; background: rgba(255,77,94,.15); }
+  .severity.high { color: #ff8a95; }
+  .severity.medium { color: var(--yellow); }
+  .severity.low { color: var(--cyan); }
+  .severity.info { color: var(--muted); }
+  .description { color: var(--muted); margin: 10px 0; }
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+              gap: 12px; margin: 12px 0; }
+  .compare-col { background: var(--panel-2); border: 1px solid var(--line);
+                  border-radius: 10px; padding: 10px 12px; }
+  .compare-col h4 { margin: 0 0 4px; font-size: 11px; color: var(--muted);
+                     text-transform: uppercase; letter-spacing: .12em; }
+  .compare-col p { margin: 0; font-size: 14px; }
+  .notes { margin: 8px 0; padding-left: 20px; color: var(--muted); }
+  .remediation { border-left: 3px solid var(--yellow); padding: 4px 0 4px 12px; margin: 10px 0; }
+  .remediation strong { color: var(--yellow); }
+  .remediation p { margin: 4px 0 0; }
+  .error-box { border-left: 3px solid var(--yellow); padding: 4px 0 4px 12px; margin: 10px 0; }
+  .error-box strong { color: var(--yellow); }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; color: var(--cyan); font-weight: 600; }
+  pre { background: #070c18; border: 1px solid var(--line); border-radius: 8px;
+         padding: 10px; overflow-x: auto; font-size: 12px; color: #cfe0ff; }
+  .exchanges { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  .exchanges th, .exchanges td { border-bottom: 1px solid var(--line); text-align: left;
+                                  padding: 8px; vertical-align: top; }
+  .exchanges th { color: var(--muted); font-size: 11px; text-transform: uppercase;
+                   letter-spacing: .1em; }
+  .empty { color: var(--muted); font-style: italic; }
+  footer { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 18px;
+            color: var(--muted); font-size: 13px; }
+  footer ul { padding-left: 20px; }
+  @media print {
+    body { background: #fff; color: #111; }
+    .finding, .card, .meta div, .compare-col { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Hook<span>Proof</span></div>
+    <div class="tag">EffectProof webhook security report</div>
+  </header>
+
+  <section class="meta">
+    <div><dt>Target</dt><dd>http://127.0.0.1:8011/webhooks/payment</dd></div>
+    <div><dt>Detected mode</dt><dd>secure</dd></div>
+    <div><dt>Suite</dt><dd>core</dd></div>
+    <div><dt>Run id</dt><dd>ec60deb34d</dd></div>
+    <div><dt>Requests</dt><dd>21 in 0.181s</dd></div>
+    <div><dt>Generated</dt><dd>2026-11-20T06:42:53+00:00</dd></div>
+  </section>
+
+  <section class="cards">
+    <div class="card"><div class="num">11</div><div class="lbl">Tests</div></div>
+    <div class="card"><div class="num" style="color:var(--green)">11</div><div class="lbl">Passed</div></div>
+    <div class="card"><div class="num" style="color:var(--red)">0</div><div class="lbl">Failed</div></div>
+    <div class="card"><div class="num" style="color:var(--yellow)">0</div><div class="lbl">Errors</div></div>
+    <div class="card"><div class="num">none</div><div class="lbl">Highest severity</div></div>
+  </section>
+
+  <div class="outcome pass">Outcome: PASS</div>
+
+  <main>
+    <h2>Findings</h2>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Valid signed event is processed</h3>
+          <code>valid_signature</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">A correctly signed, fresh payment event must be accepted and must create exactly one payment business operation.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>exactly one payment of 1000; order status &#x27;paid&#x27;</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=1, amount_total=1000, expected_total=1000, status=paid</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>valid-event</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: false,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;processed&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-valid_signature-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 1000,
+  &quot;found&quot;: true,
+  &quot;order_id&quot;: &quot;ord-valid_signature-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [
+    1000
+  ],
+  &quot;payment_count&quot;: 1,
+  &quot;processed_event_ids&quot;: [
+    &quot;evt-valid_signature-ec60deb34d&quot;
+  ],
+  &quot;status&quot;: &quot;paid&quot;
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Unsigned event does not change protected state</h3>
+          <code>missing_signature</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">An event without any signature header must be rejected and must not create or modify protected business records.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded and amount_total remains 0 (no protected side effect)</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>missing_signature</td><td><code>401</code></td><td><pre>{
+  &quot;detail&quot;: &quot;missing signature or timestamp header&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-missing_signature-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-missing_signature-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Forged signature is rejected without side effects</h3>
+          <code>invalid_signature</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">A request signed with the wrong secret must be rejected and must not trigger processing.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded and amount_total remains 0 (no protected side effect)</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>invalid_signature</td><td><code>401</code></td><td><pre>{
+  &quot;detail&quot;: &quot;invalid signature&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-invalid_signature-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-invalid_signature-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Tampered payload is rejected without side effects</h3>
+          <code>payload_tampering</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">A signed body whose content was modified (without recomputing a valid signature) must not be processed.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded and amount_total remains 0 (no protected side effect)</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>payload_tampering</td><td><code>401</code></td><td><pre>{
+  &quot;detail&quot;: &quot;invalid signature&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-payload_tampering-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-payload_tampering-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Unsupported event type does not move money</h3>
+          <code>unsupported_event_type</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">A correctly signed event whose type is not supported (for example a refund event) must not trigger a payment fulfilment.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded and amount_total remains 0 (no protected side effect)</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>unsupported_event_type</td><td><code>422</code></td><td><pre>{
+  &quot;detail&quot;: [
+    &quot;unsupported event type: &#x27;payment.refunded&#x27;&quot;
+  ]
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-unsupported_event_type-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-unsupported_event_type-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Negative amount is rejected without side effects</h3>
+          <code>invalid_amount</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">A signed event with an invalid (negative) amount must be rejected and must not create a payment or alter protected state.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded and amount_total remains 0 (no protected side effect)</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>invalid_amount</td><td><code>422</code></td><td><pre>{
+  &quot;detail&quot;: [
+    &quot;field &#x27;amount&#x27; must be positive&quot;
+  ]
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-invalid_amount-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-invalid_amount-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Duplicate delivery creates only one business operation</h3>
+          <code>duplicate_event</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">Delivering the same valid event twice must produce exactly one protected business operation (persistent idempotency).</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>exactly one payment of 1000 after two identical deliveries</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=1, amount_total=1000, expected_total=1000, status=paid</p></div>
+      </div>
+      <ul class="notes"><li>the duplicate received a success response, which is acceptable because no operation was repeated</li></ul>
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>first-delivery</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: false,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;processed&quot;
+}</pre></td></tr><tr><td>second-delivery</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-duplicate_event-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 1000,
+  &quot;found&quot;: true,
+  &quot;order_id&quot;: &quot;ord-duplicate_event-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [
+    1000
+  ],
+  &quot;payment_count&quot;: 1,
+  &quot;processed_event_ids&quot;: [
+    &quot;evt-duplicate_event-ec60deb34d&quot;
+  ],
+  &quot;status&quot;: &quot;paid&quot;
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Concurrent duplicate deliveries cannot bypass idempotency</h3>
+          <code>concurrent_duplicate</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">Simultaneous copies of the same valid event must still result in exactly one protected business operation.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>exactly one payment of 1000 after 8 concurrent deliveries</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=1, amount_total=1000, expected_total=1000, status=paid</p></div>
+      </div>
+      <ul class="notes"><li>concurrent response codes: [200, 200, 200, 200, 200, 200, 200, 200]</li></ul>
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>concurrent-0</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: false,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;processed&quot;
+}</pre></td></tr><tr><td>concurrent-1</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr><tr><td>concurrent-2</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr><tr><td>concurrent-3</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr><tr><td>concurrent-4</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr><tr><td>concurrent-5</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr><tr><td>concurrent-6</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr><tr><td>concurrent-7</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-concurrent_duplicate-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 1000,
+  &quot;found&quot;: true,
+  &quot;order_id&quot;: &quot;ord-concurrent_duplicate-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [
+    1000
+  ],
+  &quot;payment_count&quot;: 1,
+  &quot;processed_event_ids&quot;: [
+    &quot;evt-concurrent_duplicate-ec60deb34d&quot;
+  ],
+  &quot;status&quot;: &quot;paid&quot;
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Event ID cannot be reused for another order</h3>
+          <code>event_id_reuse</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">Reusing an already processed event ID with a different order must not create a second protected business operation.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>original order charged once; reused event ID creates no payment for the second order</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>primary_payment_count=1, secondary_payment_count=0, secondary_amount_total=0</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>original-order</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: false,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;processed&quot;
+}</pre></td></tr><tr><td>reused-event-id</td><td><code>200</code></td><td><pre>{
+  &quot;duplicate&quot;: true,
+  &quot;mode&quot;: &quot;secure&quot;,
+  &quot;status&quot;: &quot;duplicate&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-event_id_reuse-secondary-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;primary&quot;: {
+    &quot;amount_total&quot;: 1000,
+    &quot;found&quot;: true,
+    &quot;order_id&quot;: &quot;ord-event_id_reuse-primary-ec60deb34d&quot;,
+    &quot;payment_amounts&quot;: [
+      1000
+    ],
+    &quot;payment_count&quot;: 1,
+    &quot;processed_event_ids&quot;: [
+      &quot;evt-event_id_reuse-ec60deb34d&quot;
+    ],
+    &quot;status&quot;: &quot;paid&quot;
+  },
+  &quot;secondary&quot;: {
+    &quot;amount_total&quot;: 0,
+    &quot;found&quot;: false,
+    &quot;order_id&quot;: &quot;ord-event_id_reuse-secondary-ec60deb34d&quot;,
+    &quot;payment_amounts&quot;: [],
+    &quot;payment_count&quot;: 0,
+    &quot;processed_event_ids&quot;: [],
+    &quot;status&quot;: null
+  }
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Stale signed timestamp is rejected</h3>
+          <code>stale_timestamp</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">A correctly signed event whose authenticated timestamp is outside the freshness window must be rejected and cause no side effects.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded and amount_total remains 0 (no protected side effect)</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>stale_timestamp</td><td><code>401</code></td><td><pre>{
+  &quot;detail&quot;: &quot;stale timestamp&quot;
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-stale_timestamp-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-stale_timestamp-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+    <article class="finding pass">
+      <header class="finding-head">
+        <span class="badge pass">PASS</span>
+        <div class="finding-title">
+          <h3>Malformed payload causes no unintended state change</h3>
+          <code>malformed_payload</code>
+        </div>
+        <span class="severity info">INFO</span>
+      </header>
+      <p class="description">Invalid JSON and structurally invalid events (including with a valid signature) must be handled safely without side effects.</p>
+      <div class="compare">
+        <div class="compare-col"><h4>Expected</h4><p>no payment recorded for malformed payloads</p></div>
+        <div class="compare-col"><h4>Observed (EffectProof)</h4><p>payment_count=0, amount_total=0, order_created=False, status=None</p></div>
+      </div>
+      
+      
+      
+      <details>
+        <summary>Evidence</summary>
+        <table class="exchanges"><thead><tr><th>Exchange</th><th>HTTP</th><th>Response body</th></tr></thead><tbody><tr><td>invalid-json</td><td><code>400</code></td><td><pre>{
+  &quot;detail&quot;: &quot;invalid JSON payload&quot;
+}</pre></td></tr><tr><td>missing-required-fields</td><td><code>422</code></td><td><pre>{
+  &quot;detail&quot;: [
+    &quot;missing field: type&quot;,
+    &quot;missing field: amount&quot;,
+    &quot;missing field: currency&quot;,
+    &quot;missing field: timestamp&quot;
+  ]
+}</pre></td></tr></tbody></table>
+        <h4>State before</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-malformed_payload-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+        <h4>State after</h4><pre>{
+  &quot;amount_total&quot;: 0,
+  &quot;found&quot;: false,
+  &quot;order_id&quot;: &quot;ord-malformed_payload-ec60deb34d&quot;,
+  &quot;payment_amounts&quot;: [],
+  &quot;payment_count&quot;: 0,
+  &quot;processed_event_ids&quot;: [],
+  &quot;status&quot;: null
+}</pre>
+      </details>
+    </article>
+    
+  </main>
+
+  <footer>
+    <strong>Notes</strong>
+    <ul><li>Target reports itself as secure lab mode; all core tests are expected to pass.</li></ul>
+    <strong>Limitations</strong>
+    <ul><li>EffectProof requires the target to expose a restricted test-state interface (the HookProof lab provides one). Internal effects of an arbitrary API cannot be observed without suitable instrumentation.</li><li>HookProof only scans explicitly allowed hosts; the default allow-list is loopback.</li><li>The MVP includes a single event type (payment.succeeded) and a single &#x27;core&#x27; suite.</li><li>Timing/race findings are probabilistic: a clean concurrent test does not prove the absence of a race under all conditions.</li></ul>
+    <p>Generated by HookProof 0.1.0 - schema 1.</p>
+  </footer>
+</div>
+</body>
+</html>
